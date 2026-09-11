@@ -153,6 +153,16 @@ Check the run report for missing components or deliverables. The generated files
 
 Verify the selected provider, model name, network connection, and API key. The agent retries temporary rate-limit and server errors, but authentication and invalid-request errors must be corrected at the provider or prompt.
 
+## Changing API key rotation
+
+Open `agent.js` and edit the top-level setting:
+
+```js
+const TURNS_BEFORE_KEY_SWITCH = 4;
+```
+
+This controls how many API turns each key receives before the agent moves to the next key. For example, `4` means turns 1-4 use key 1 and turn 5 starts with key 2. This is a user setting in `agent.js`, so a professor can change it without searching through the `lib` folder. The value affects key rotation only; `MAX_TURNS` still controls the total run limit in `lib/config.js`.
+
 ## License
 
 No license has been specified for this project yet.
