@@ -5,8 +5,23 @@
  * A Simple Code Agent (Node.js, Terminal-Based)
  *
  * No package.json, no dependencies, no SDK. Uses Node's built-in fetch
- * (Node 18+) to call Anthropic, OpenAI or Gemini directly; the user
- * picks one from a menu at startup.
+ * (Node 18+) to call Anthropic, OpenAI, Gemini or DeepSeek directly;
+ * the user picks one from a menu at startup.
+ *
+ * Every run opens with one question: MAKE the project, or LAUNCH it.
+ *   Make   — the build agent below: read the architecture documents,
+ *            plan, scaffold the project, verify it runs.
+ *   Launch — no LLM and no API key at all. It reads what is already in
+ *            the Project folder, works out how it starts, and asks the
+ *            prerequisite questions first — are the dependencies
+ *            installed, is there a .env, is PostgreSQL up, was the
+ *            schema applied, is the port free — before starting it.
+ *            A project that ships an Electron shell (an "electron"
+ *            script in its package.json) is opened as a DESKTOP APP in
+ *            its own window rather than as a URL in a browser; the
+ *            shell starts the backend itself and stops it again when
+ *            the window closes. Web builds are given that shell, so
+ *            this is the normal path.
  *
  * It scans its own directory for markdown architecture inputs — any
  * filenames, any heading style, PlantUML or Mermaid diagrams — parses
@@ -33,8 +48,9 @@
  *   lib/plan/verify.js    build plan      ->  what is missing on disk
  *   lib/project/scan.js   existing Project folder  ->  resume context
  *   lib/tools/            the tools handed to the model
- *   lib/providers/        Anthropic / OpenAI / Gemini wire formats
+ *   lib/providers/        Anthropic / OpenAI / Gemini / DeepSeek wire formats
  *   lib/runner/smoke.js   installs, boots and probes the built project
+ *   lib/runner/launch.js  launch mode: preflight questions, then run it
  *   lib/agent/main.js     the turn loop
  *
  * Usage:
@@ -43,14 +59,20 @@
  *      named whatever you like. A Project folder is created if missing.
  *   2. Open a terminal in that folder
  *   3. Run: node agent.js
- *   4. Pick a provider and paste its key when prompted.
+ *   4. Choose "Make the project", then pick a provider and paste its
+ *      key when prompted. Once it is built, run it again and choose
+ *      "Launch the project" to start what was built.
  * ------------------------------------------------------------------
  */
 'use strict';
 
+// Change this number to control when the agent switches to the next API key.
+// Example: 4 means key #2 is used at the start of turn 5.
+const TURNS_BEFORE_KEY_SWITCH = 14;
+
 const { main } = require('./lib/agent/main');
 
-main().catch((err) => {
+main({ turnsBeforeKeySwitch: TURNS_BEFORE_KEY_SWITCH }).catch((err) => {
   console.error(`\n[fatal] Unhandled error: ${err.stack || err.message}`);
   process.exit(1);
 });
