@@ -96,6 +96,8 @@ Then start the agent:
 node agent.js
 ```
 
+Select 1st option 
+
 The startup prompts ask for:
 
 1. An LLM provider: Anthropic, OpenAI, or Google Gemini.
@@ -105,6 +107,14 @@ The startup prompts ask for:
 5. An optional model name. Press Enter to use the provider default.
 
 The generated files will appear under `Project/`. The exact application start and test commands depend on the architecture specification and are reported by the agent when the model calls `task_complete`.
+
+Then, in the terminal, run the agent again:
+
+```powershell
+node agent.js
+```
+
+Now select the 2nd option and answer all the questions of the system
 
 ## Agent Limits and Safety Controls
 
